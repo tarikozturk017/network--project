@@ -3,14 +3,22 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from .models import User, Post
 
 
 def index(request):
     allPosts = Post.objects.all().order_by("id").reverse()
+
+    # Pagination
+    paginator = Paginator(allPosts, 10)
+    page_number = request.GET.get('page')
+    posts_of_the_page = paginator.get_page(page_number)
+
     return render(request, "network/index.html", {
-        "allPosts": allPosts
+        "allPosts": allPosts,
+        "posts_of_the_page": posts_of_the_page
     })
 
 
@@ -21,6 +29,21 @@ def newPost(request):
         post = Post(content=content, user=user)
         post.save()
         return HttpResponseRedirect(reverse(index))
+
+def profile(request, user_id):
+    user = User.objects.get(pk=user_id)
+    allPosts = Post.objects.filter(user=user_id).order_by("id").reverse()
+
+    # Pagination
+    paginator = Paginator(allPosts, 10)
+    page_number = request.GET.get('page')
+    posts_of_the_page = paginator.get_page(page_number)
+
+    return render(request, "network/profile.html", {
+        "allPosts": allPosts,
+        "posts_of_the_page": posts_of_the_page,
+        "username": user.username
+    })
 
 def login_view(request):
     if request.method == "POST":
