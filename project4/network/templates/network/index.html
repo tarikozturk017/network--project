@@ -4,13 +4,22 @@
     {% if user.is_authenticated %}
     <div class="new-post my-3 mx-5">
         <h2>New Post</h2>
-        <form action="" method="post">
+        <form action="{% url 'newPost' %}" method="post">
             {% csrf_token %}
             <textarea name="content" row="4" cols="40"></textarea>
             <br/>
             <input type="submit" value="Post" class="btn btn-primary"/>
         </form>
     </div>
-
     {% endif %}
+
+    <div class="all-posts">
+        {% for post in allPosts %}
+            <div class="row post">
+                <h5 class="username">@{{ post.user }}</h5>
+                <h6 class="content">{{ post.content }}</h6>
+                <p class="date">{{ post.date}}</p>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
